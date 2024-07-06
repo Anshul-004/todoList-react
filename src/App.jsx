@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import { v4 as uuidv4 } from "uuid";
@@ -7,14 +7,38 @@ function App() {
   const [todo, settodo] = useState("");
   const [todoarr, settodoarr] = useState([]);
 
+  useEffect(() => {
+    if(localStorage.getItem("TodoItems") != null)
+    {
+      let todoarr = JSON.parse(localStorage.getItem("TodoItems"))
+      settodoarr(todoarr)
+    }
+  }, [])
+  
+
+  const savetoLS = () => {
+    localStorage.setItem("TodoItems", JSON.stringify(todoarr))
+  }
+  // jab jab edit , add , delete krenge, we'll add to ls
+  
+
   const handleAdd = () => {
     settodoarr([...todoarr, {id:uuidv4(), todo, isCompleted: false }]);
     settodo("");
     console.log(todoarr);
+    savetoLS();
   };
-  const handleComplete = () => {};
-  const handleDelete = () => {
-    // alert("deleted shit");
+  const handleComplete = () => {
+    
+  };
+  const handleDelete = (id) => {
+
+    let newtodos = todoarr.filter(item =>{
+      return item.id != id;
+    })
+
+    settodoarr(newtodos);
+    savetoLS();
   };
   const handleChange = (e) => {
     settodo(e.target.value);
@@ -29,7 +53,8 @@ function App() {
     let newtodos = [...todoarr];
     newtodos[index].isCompleted = !newtodos[index].isCompleted
     settodoarr(newtodos) 
-    console.log(newtodos)
+    // console.log(newtodos)
+    savetoLS();
   };
 
   return (
@@ -69,7 +94,7 @@ function App() {
                 <div className="flex buttons gap-6">
                   <button onClick={handleComplete} type="button" className="hover:font-bold bg-green-800 text-white p-1"> Completed </button>
                   <button
-                    onClick={handleDelete} type="button" className="hover:font-bold bg-green-800 text-white p-1">Delete </button>
+                    onClick={()=>handleDelete(item.id)} type="button" className="hover:font-bold bg-green-800 text-white p-1">Delete </button>
                 </div>
               </div>
             );
